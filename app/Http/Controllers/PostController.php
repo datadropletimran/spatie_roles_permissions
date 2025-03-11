@@ -5,15 +5,18 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
 use App\Models\Post;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class PostController extends Controller
 {
+    use AuthorizesRequests;
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        return view('post.index');
+        $posts = Post::paginate(10);
+        return view('post.index')->with('posts', $posts);
     }
 
     /**
@@ -46,7 +49,7 @@ class PostController extends Controller
      */
     public function edit(Post $post)
     {
-        //
+        return view('post.edit')->with('post', $post);
     }
 
     /**
@@ -54,7 +57,14 @@ class PostController extends Controller
      */
     public function update(UpdatePostRequest $request, Post $post)
     {
-        //
+        // update post
+
+        $this->authorize('update', $post);
+
+
+        $post->update($request->validated());
+        return redirect()->route('post.index')->with('success', 'Post updated successfully');
+
     }
 
     /**
